@@ -1,0 +1,9 @@
+# Set default behavior to automatically normalize line endings
+* text=auto
+
+# Define file types for syntax highlighting
+*.tf linguist-language=HCL
+*.md linguist-language=Markdown
+*.sh linguist-language=Shell
+*.yaml linguist-language=YAML
+*.json linguist-language=JSON

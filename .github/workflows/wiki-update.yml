@@ -15,8 +15,10 @@ jobs:
           fetch-depth: 0
 
       - name: Clone Wiki
+        env:
+          REPO: ${{ github.repository }}
         run: |
-          git clone https://github.com/<your-username>/<your-repo>.wiki.git wiki
+          git clone https://github.com/${REPO}.wiki.git wiki
 
       - name: Copy Documentation to Wiki
         run: |

@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - hotfix/*    # Include all branches prefixed with 'hotfix/'
+      - hotfix/*
 
 jobs:
   update-wiki:
@@ -15,17 +15,37 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Clone Wiki
+      - name: Try Cloning Wiki
         env:
           REPO: ${{ github.repository }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          git clone https://x-access-token:${GH_TOKEN}@github.com/${REPO}.wiki.git wiki
+          set -e
+          echo "Attempting to clone wiki..."
+          if git clone https://x-access-token:${GH_TOKEN}@github.com/${REPO}.wiki.git wiki; then
+            echo "Wiki repository exists."
+          else
+            echo "Wiki repository not found. Initializing wiki..."
+            mkdir wiki
+            cd wiki
+            echo "# Initial Wiki Page" > Home.md
+            git init
+            git config user.name "GitHub Actions"
+            git config user.email "actions@github.com"
+            git add Home.md
+            git commit -m "Initialize wiki with default Home page"
+            git branch -M main
+            git remote add origin https://x-access-token:${GH_TOKEN}@github.com/${REPO}.wiki.git
+            git push -u origin main
+          fi
 
       - name: Copy Documentation to Wiki
         run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
           cp docs/*.md wiki/
           cd wiki
           git add .
-          git commit -m "Update Wiki from hotfix branch (${GITHUB_REF})"
+          git commit -m "Update Wiki from main repository" || echo "No changes to commit"
           git push
+
